@@ -8,6 +8,11 @@ from .models import Profile
 def home_view(request):
     if request.user.is_authenticated:
         profile = getattr(request.user, 'profile', None)
+        if profile and (profile.role == 'CLIENT' or profile.role == 'client'):
+            return render(request, 'home_client.html', {
+                'user': request.user,
+                'profile': profile,
+            })
         return render(request, 'home.html', {
             'user': request.user,
             'profile': profile,
@@ -44,5 +49,4 @@ def create_user(request):
         form = UserCreationForm()
 
     return render(request, 'create_user.html', {'form': form})
-
 
