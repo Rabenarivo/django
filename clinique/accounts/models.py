@@ -8,6 +8,7 @@ class Profile(models.Model):
         ('ADMIN', 'Administrateur'),
         ('DOCTOR', 'Médecin'),
         ('RECEPTIONIST', 'Réceptionniste'),
+        ('CLIENT' , 'client')
     ]
 
     user = models.OneToOneField(
@@ -18,7 +19,7 @@ class Profile(models.Model):
     role = models.CharField(
         max_length=20,
         choices=ROLE_CHOICES,
-        default='RECEPTIONIST'
+        default='CLIENT'
     )
 
     phone = models.CharField(

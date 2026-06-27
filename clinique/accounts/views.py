@@ -1,7 +1,8 @@
 from django.contrib.auth import logout
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm , UserCreationForm
 from django.contrib.auth import login as auth_login
 from django.shortcuts import redirect, render
+from .models import Profile
 
 
 def home_view(request):
@@ -29,3 +30,19 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+
+
+def create_user(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            auth_login(request, user)
+            return redirect('home')
+    else:
+        form = UserCreationForm()
+
+    return render(request, 'create_user.html', {'form': form})
+
+
