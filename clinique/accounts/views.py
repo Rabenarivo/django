@@ -5,19 +5,42 @@ from django.shortcuts import redirect, render
 from .models import Profile
 from .forms import CustomUserCreationForm
 from patients.models import Patient
+from appointments.forms import AppointmentForm
+from appointments.models import Appointment 
 
 
 def home_view(request):
     if request.user.is_authenticated:
         profile = getattr(request.user, 'profile', None)
+
+        if request.method == 'POST':
+            form = AppointmentForm(request.POST)
+            if form.is_valid():
+
+                appointment = form.save(commit=False)
+                
+
+                patient = Patient.objects.filter(user=request.user).first()
+                if patient:
+                    appointment.patient = patient
+                    appointment.save()
+
+                    return redirect('home')
+        else:
+            # GET request - create empty form
+            form = AppointmentForm()
+        
+        # Render the form
         if profile and (profile.role == 'CLIENT' or profile.role == 'client'):
-            return render(request, 'accounts/home_client.html', {
+            return render(request, 'create.html', {
                 'user': request.user,
                 'profile': profile,
+                'form': form,
             })
-        return render(request, 'accounts/home.html', {
+        return render(request, 'create.html', {
             'user': request.user,
             'profile': profile,
+            'form': form,
         })
     return redirect('login')
 
