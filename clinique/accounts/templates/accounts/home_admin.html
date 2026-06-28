@@ -1,3 +1,4 @@
+<!-- d:\ITU\django\clinique\accounts\templates\accounts\home_admin.html -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -7,6 +8,9 @@
 <body>
     <h1>Bienvenue Admin {{ user.username }}!</h1>
     <p>Vous êtes connecté en tant qu'Administrateur.</p>
+    <br>
+    <a href="{% url 'list_consultation' %}">Voir tous les rendez-vous</a>
+    <br>
     <a href="{% url 'logout' %}">Déconnexion</a>
 </body>
 </html>

@@ -1,23 +1,34 @@
-from django.shortcuts import render
-from .models import Appoitments
-# Create your views here.
+# d:\ITU\django\clinique\appointments\views.py
+from django.shortcuts import render, redirect
+from .models import Appointment
+from .forms import AppointmentForm
+from patients.models import Patient
+from django.contrib.auth.decorators import login_required
 
-def home_view(request): 
-    if request.user.is_authenticated:
-        return render(request, 'template/home.html')
-    else:
-        return render(request, 'accounts/login.html')
-    name='appointments_home'
-    return render(request, 'template/home.html', {'name': name})   
 
+@login_required
+def home_view(request):
+    return redirect('create_appointment')
+
+
+@login_required
 def create_appointment(request):
     if request.method == 'POST':
-        form = AppoitmentsForm(request.POST)
+        form = AppointmentForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('appointments:home')
+            appointment = form.save(commit=False)
+            patient = Patient.objects.filter(user=request.user).first()
+            if patient:
+                appointment.patient = patient
+                appointment.save()
+                return redirect('home')
     else:
-        form = AppoitmentsForm()
-    return render(request, 'template/create.html', {'form': form})
+        form = AppointmentForm()
+    
+    return render(request, 'create.html', {'form': form})
 
-
+@login_required
+def list_consultation(request):
+    appointment = Appointment.objects.all()
+    return render(request, 'appointments/list_consultation.html', {'appointment': appointment})
+   

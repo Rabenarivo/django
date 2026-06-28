@@ -41,6 +41,11 @@ def home_view(request):
                     'user': request.user,
                     'profile': profile,
                 })
+            elif role == 'RECEPTIONIST':
+                return render(request, 'accounts/receptionniste.html', {
+                    'user': request.user,
+                    'profile': profile,
+                })
             elif role == 'CLIENT':
                 return render(request, 'accounts/home_client.html', {
                     'user': request.user,
