@@ -9,41 +9,51 @@ from appointments.forms import AppointmentForm
 from appointments.models import Appointment 
 
 
+# d:\ITU\django\clinique\accounts\views.py
 def home_view(request):
     if request.user.is_authenticated:
         profile = getattr(request.user, 'profile', None)
-
-        if request.method == 'POST':
+        
+        # Handle POST request only if it's a CLIENT (since only clients create appointments)
+        if request.method == 'POST' and profile and profile.role.upper() == 'CLIENT':
             form = AppointmentForm(request.POST)
             if form.is_valid():
-
                 appointment = form.save(commit=False)
                 
-
                 patient = Patient.objects.filter(user=request.user).first()
                 if patient:
                     appointment.patient = patient
                     appointment.save()
-
                     return redirect('home')
         else:
-            # GET request - create empty form
             form = AppointmentForm()
         
-        # Render the form
-        if profile and (profile.role == 'CLIENT' or profile.role == 'client'):
-            return render(request, 'create.html', {
-                'user': request.user,
-                'profile': profile,
-                'form': form,
-            })
-        return render(request, 'create.html', {
+        # Determine which template to render based on role
+        if profile:
+            role = profile.role.upper()
+            if role == 'ADMIN':
+                return render(request, 'accounts/home_admin.html', {
+                    'user': request.user,
+                    'profile': profile,
+                })
+            elif role == 'DOCTOR':
+                return render(request, 'accounts/home_doctor.html', {
+                    'user': request.user,
+                    'profile': profile,
+                })
+            elif role == 'CLIENT':
+                return render(request, 'accounts/home_client.html', {
+                    'user': request.user,
+                    'profile': profile,
+                    'form': form,
+                })
+        
+        # Fallback to default home.html
+        return render(request, 'accounts/home_client.html', {
             'user': request.user,
             'profile': profile,
-            'form': form,
         })
     return redirect('login')
-
 def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
