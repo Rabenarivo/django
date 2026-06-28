@@ -1,4 +1,4 @@
-<!-- d:\ITU\django\clinique\templates\list_consultation.html -->
+<!-- d:\ITU\django\clinique\appointments\templates\appointments\list_consultation.html -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -17,10 +17,11 @@
                 <th>Heure</th>
                 <th>Raison</th>
                 <th>Statut</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
-            {% for app in appointment %}
+            {% for app in appointments %}
                 <tr>
                     <td>{{ app.patient }}</td>
                     <td>{{ app.doctor|default:"Non assigné" }}</td>
@@ -28,10 +29,19 @@
                     <td>{{ app.appointment_time }}</td>
                     <td>{{ app.reason }}</td>
                     <td>{{ app.status }}</td>
+                    <td>
+                        {% if user.profile.role == 'RECEPTIONIST' %}
+                            {% if app.status == 'Pending' %}
+                                <a href="{% url 'assign_appointment' app.id %}">Assigner</a>
+                            {% elif app.status == 'Confirmed' %}
+                                <a href="{% url 'cancel_appointment' app.id %}">Annuler</a>
+                            {% endif %}
+                        {% endif %}
+                    </td>
                 </tr>
             {% empty %}
                 <tr>
-                    <td colspan="6">Aucun rendez-vous trouvé</td>
+                    <td colspan="7">Aucun rendez-vous trouvé</td>
                 </tr>
             {% endfor %}
         </tbody>
