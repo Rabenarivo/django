@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultations - Docteur</title>
+</head>
+<body>
+    <h1>Mes Rendez-vous Confirmés</h1>
+    {% if appointments %}
+        <ul>
+            {% for appointment in appointments %}
+                <li>
+                    <strong>Patient:</strong> {{ appointment.patient.first_name }} {{ appointment.patient.last_name }}<br>
+                    <strong>Date:</strong> {{ appointment.appointment_date }}<br>
+                    <strong>Heure:</strong> {{ appointment.appointment_time }}<br>
+                    <strong>Raison:</strong> {{ appointment.reason }}<br>
+                    <a href="{% url 'create_consultation_for_appointment' appointment.id %}">Créer une consultation</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Aucun rendez-vous confirmé.</p>
+    {% endif %}
+
+  
+</body>
+</html>
