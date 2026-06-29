@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Mes Prescriptions</title>
+</head>
+<body>
+    <h1>Mes Prescriptions</h1>
+    {% if prescriptions %}
+        <ul>
+            {% for prescription in prescriptions %}
+                <li>
+                    <strong>Patient:</strong> {{ prescription.consultation.appointment.patient.first_name }} {{ prescription.consultation.appointment.patient.last_name }}<br>
+                    <strong>Date:</strong> {{ prescription.created_at|date:"d/m/Y H:i" }}<br>
+                    <strong>Nombre de médicaments:</strong> {{ prescription.items.count }}<br>
+                    <a href="{% url 'prescription_detail' prescription.id %}">Voir les détails</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Aucune prescription trouvée.</p>
+    {% endif %}
+    <br>
+    <a href="{% url 'create_prescription' %}">Créer une nouvelle prescription</a>
+    <br>
+    <a href="{% url 'list_consultation_doctor' %}">Retour aux consultations</a>
+</body>
+</html>

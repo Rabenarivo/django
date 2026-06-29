@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Créer une Prescription</title>
+    <style>
+        .medicine-item {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .remove-btn {
+            color: red;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Créer une Prescription</h1>
+    {% if selected_consultation %}
+        <p>Pour la consultation de {{ selected_consultation.appointment.patient.first_name }} {{ selected_consultation.appointment.patient.last_name }}</p>
+    {% endif %}
+    
+    <form method="post" id="prescription-form">
+        {% csrf_token %}
+        
+        <div>
+            <label for="consultation">Consultation :</label>
+            <select name="consultation" id="consultation" required>
+                {% for consultation in consultations %}
+                    <option value="{{ consultation.id }}" {% if selected_consultation and consultation.id == selected_consultation.id %}selected{% endif %}>
+                        {{ consultation.appointment.patient.first_name }} {{ consultation.appointment.patient.last_name }} - {{ consultation.consultation_date|date:"d/m/Y" }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <h3>Médicaments</h3>
+        <div id="medicine-items">
+            <!-- Initial medicine item -->
+            <div class="medicine-item">
+                <select name="medicine" required>
+                    <option value="">Sélectionner un médicament</option>
+                    {% for medicine in medicines %}
+                        <option value="{{ medicine.id }}">{{ medicine.name }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" name="dosage" placeholder="Dosage" required>
+                <input type="text" name="frequency" placeholder="Fréquence" required>
+                <input type="text" name="duration" placeholder="Durée" required>
+            </div>
+        </div>
+        
+        <button type="button" id="add-medicine-btn" style="margin: 10px 0;">Ajouter un médicament</button>
+        <br>
+        <input type="submit" value="Créer la prescription">
+    </form>
+    
+    <br>
+    <a href="{% url 'list_prescriptions_doctor' %}">Retour à la liste</a>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const medicineItemsContainer = document.getElementById('medicine-items');
+            const addMedicineBtn = document.getElementById('add-medicine-btn');
+            const medicines = [
+                {% for medicine in medicines %}
+                    { id: {{ medicine.id }}, name: "{{ medicine.name|escapejs }}" },
+                {% endfor %}
+            ];
+            
+            // Function to create a new medicine item HTML
+            function createMedicineItem() {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'medicine-item';
+                
+                let selectHTML = '<select name="medicine" required><option value="">Sélectionner un médicament</option>';
+                medicines.forEach(med => {
+                    selectHTML += `<option value="${med.id}">${med.name}</option>`;
+                });
+                selectHTML += '</select>';
+                
+                itemDiv.innerHTML = `
+                    ${selectHTML}
+                    <input type="text" name="dosage" placeholder="Dosage" required>
+                    <input type="text" name="frequency" placeholder="Fréquence" required>
+                    <input type="text" name="duration" placeholder="Durée" required>
+                    <div class="remove-btn" onclick="removeMedicineItem(this)">Supprimer</div>
+                `;
+                
+                return itemDiv;
+            }
+            
+            // Add click event to add button
+            addMedicineBtn.addEventListener('click', function() {
+                const newItem = createMedicineItem();
+                medicineItemsContainer.appendChild(newItem);
+            });
+        });
+        
+        // Function to remove a medicine item
+        function removeMedicineItem(element) {
+            const item = element.closest('.medicine-item');
+            const container = document.getElementById('medicine-items');
+            if (container.children.length > 1) {
+                item.remove();
+            } else {
+                alert('Vous devez avoir au moins un médicament.');
+            }
+        }
+    </script>
+</body>
+</html>

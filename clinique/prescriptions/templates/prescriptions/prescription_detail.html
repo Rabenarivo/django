@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Détails de la Prescription</title>
+    <style>
+        .prescription-item {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Prescription</h1>
+    <div>
+        <strong>Patient:</strong> {{ prescription.consultation.appointment.patient.first_name }} {{ prescription.consultation.appointment.patient.last_name }}
+    </div>
+    <div>
+        <strong>Date de création:</strong> {{ prescription.created_at|date:"d/m/Y H:i" }}
+    </div>
+    
+    <h3>Médicaments prescrits:</h3>
+    {% for item in prescription.items.all %}
+        <div class="prescription-item">
+            <strong>Médicament:</strong> {{ item.medicine.name }}<br>
+            <strong>Dosage:</strong> {{ item.dosage }}<br>
+            <strong>Fréquence:</strong> {{ item.frequency }}<br>
+            <strong>Durée:</strong> {{ item.duration }}
+        </div>
+    {% empty %}
+        <p>Aucun médicament dans cette prescription.</p>
+    {% endfor %}
+    
+    <br>
+    <a href="{% url 'list_prescriptions_doctor' %}">Retour à la liste</a>
+</body>
+</html>

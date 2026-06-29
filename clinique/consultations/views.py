@@ -66,10 +66,15 @@ def create_consultation(request, appointment_id=None):
         selected_appointment = get_object_or_404(Appointment, id=appointment_id, doctor=doctor, status='Confirmed')
     
     if request.method == 'POST':
+        print("POST request received!")
         form = ConsultationForm(request.POST)
+        print(f"Form valid? {form.is_valid()}")
         if form.is_valid():
-            form.save()
-            return redirect('list_consultation_doctor')
+            consultation = form.save()
+            print(f"Consultation created with ID: {consultation.id}")
+            return redirect('create_prescription_for_consultation', consultation_id=consultation.id)
+        else:
+            print(f"Form errors: {form.errors}")
     else:
         # Pre-fill the form with the selected appointment if available
         if selected_appointment:

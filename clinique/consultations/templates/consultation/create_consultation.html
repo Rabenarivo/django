@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,10 +7,24 @@
 </head>
 <body>
     <h1>Créer une consultation</h1>
+    {% if form.errors %}
+        <div style="color: red;">
+            <p>Erreurs dans le formulaire :</p>
+            <ul>
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>{{ field }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <input type="submit" value="Créer">
     </form>
+    <br>
+    <a href="{% url 'list_consultation_doctor' %}">Retour à la liste</a>
 </body>
 </html>

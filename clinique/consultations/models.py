@@ -3,7 +3,7 @@ from appointments.models import Appointment
 
 class Consultation(models.Model):
 
-    appointment = models.OneToOneField(
+    appointment = models.ForeignKey(
         Appointment,
         on_delete=models.CASCADE
     )
@@ -17,4 +17,4 @@ class Consultation(models.Model):
     consultation_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Consultation {self.id}"
+        return f"Consultation {self.id} - {self.appointment.patient.first_name}"
