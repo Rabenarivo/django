@@ -34,7 +34,7 @@ def create_appointment(request):
     else:
         form = AppointmentForm()
     
-    return render(request, 'create.html', {'form': form})
+    return render(request, 'appointments/create.html', {'form': form})
 
 
 @login_required
