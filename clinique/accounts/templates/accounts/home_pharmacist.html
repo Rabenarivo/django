@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Accueil Client</title>
+</head>
+<body>
+    <h1>Bienvenue {{ user.username }} !</h1>
+    <p>Vous êtes connecté en tant que Pharmaceutique.</p>
+    <br>
+    <a href="{% url 'logout' %}">Déconnexion</a>
+    <a href="{% url 'list_sales' %}">Voir la liste des ventes</a>
+</body>
+</html>

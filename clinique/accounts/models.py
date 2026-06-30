@@ -8,7 +8,8 @@ class Profile(models.Model):
         ('ADMIN', 'Administrateur'),
         ('DOCTOR', 'Médecin'),
         ('RECEPTIONIST', 'Réceptionniste'),
-        ('CLIENT' , 'client')
+        ('CLIENT' , 'client'),
+        ('PHARMARMACIST', 'Pharmaceutique')
     ]
 
     user = models.OneToOneField(
