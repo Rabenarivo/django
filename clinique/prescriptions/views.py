@@ -2,8 +2,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Prescription, PrescriptionItem
 from .forms import PrescriptionForm, PrescriptionItemForm
 from consultations.models import Consultation
-from medicines.models import Medicine, StockMovement
+from medicines.models import Medicine, StockMovement , Sale
 from doctors.models import Doctor
+from appointments.models import Appointment
+from patients.models import Patient
+
+
 from django.contrib.auth.decorators import login_required
 
 
@@ -63,11 +67,10 @@ def create_prescription(request, consultation_id=None):
                 )
                 
                 # Create StockMovement (OUT)
-                StockMovement.objects.create(
-                    medicine=medicine,
-                    movement_type='OUT',
-                    quantity=qty,
-                    reference=f"Prescription {prescription.id}"
+                Sale.objects.create(
+                    patient=consultation.appointment.patient,
+                    total_amount=qty * medicine.price,
+                    status='PENDING'
                 )
         
         return redirect('prescription_detail', prescription_id=prescription.id)
