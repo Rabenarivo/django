@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Prescription, PrescriptionItem
 from .forms import PrescriptionForm, PrescriptionItemForm
 from consultations.models import Consultation
-from medicines.models import Medicine
+from medicines.models import Medicine, StockMovement
 from doctors.models import Doctor
 from django.contrib.auth.decorators import login_required
 
@@ -41,20 +41,33 @@ def create_prescription(request, consultation_id=None):
         
         # Get items data from POST
         medicine_ids = request.POST.getlist('medicine')
+        quantities = request.POST.getlist('quantity')
         dosages = request.POST.getlist('dosage')
         frequencies = request.POST.getlist('frequency')
         durations = request.POST.getlist('duration')
         
-        # Create PrescriptionItem for each medicine
+        # Create PrescriptionItem for each medicine and update stock
         for i in range(len(medicine_ids)):
             if medicine_ids[i]:  # Only create if medicine is selected
                 medicine = Medicine.objects.get(id=medicine_ids[i])
+                qty = int(quantities[i]) if quantities[i] else 1
+                
+                # Create PrescriptionItem
                 PrescriptionItem.objects.create(
                     prescription=prescription,
                     medicine=medicine,
+                    quantity=qty,
                     dosage=dosages[i],
                     frequency=frequencies[i],
                     duration=durations[i]
+                )
+                
+                # Create StockMovement (OUT)
+                StockMovement.objects.create(
+                    medicine=medicine,
+                    movement_type='OUT',
+                    quantity=qty,
+                    reference=f"Prescription {prescription.id}"
                 )
         
         return redirect('prescription_detail', prescription_id=prescription.id)

@@ -44,9 +44,10 @@
                 <select name="medicine" required>
                     <option value="">Sélectionner un médicament</option>
                     {% for medicine in medicines %}
-                        <option value="{{ medicine.id }}">{{ medicine.name }}</option>
+                        <option value="{{ medicine.id }}">{{ medicine.name }} (Stock: {{ medicine.quantity_in_stock }})</option>
                     {% endfor %}
                 </select>
+                <input type="number" name="quantity" placeholder="Quantité" min="1" value="1" required>
                 <input type="text" name="dosage" placeholder="Dosage" required>
                 <input type="text" name="frequency" placeholder="Fréquence" required>
                 <input type="text" name="duration" placeholder="Durée" required>
@@ -67,7 +68,7 @@
             const addMedicineBtn = document.getElementById('add-medicine-btn');
             const medicines = [
                 {% for medicine in medicines %}
-                    { id: {{ medicine.id }}, name: "{{ medicine.name|escapejs }}" },
+                    { id: {{ medicine.id }}, name: "{{ medicine.name|escapejs }}", stock: {{ medicine.quantity_in_stock }} },
                 {% endfor %}
             ];
             
@@ -78,12 +79,13 @@
                 
                 let selectHTML = '<select name="medicine" required><option value="">Sélectionner un médicament</option>';
                 medicines.forEach(med => {
-                    selectHTML += `<option value="${med.id}">${med.name}</option>`;
+                    selectHTML += `<option value="${med.id}">${med.name} (Stock: ${med.stock})</option>`;
                 });
                 selectHTML += '</select>';
                 
                 itemDiv.innerHTML = `
                     ${selectHTML}
+                    <input type="number" name="quantity" placeholder="Quantité" min="1" value="1" required>
                     <input type="text" name="dosage" placeholder="Dosage" required>
                     <input type="text" name="frequency" placeholder="Fréquence" required>
                     <input type="text" name="duration" placeholder="Durée" required>
