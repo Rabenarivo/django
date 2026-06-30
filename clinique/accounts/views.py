@@ -52,6 +52,11 @@ def home_view(request):
                     'profile': profile,
                     'form': form,
                 })
+            elif role == 'PHARMARMACIST':
+                return render(request, 'accounts/home_pharmacist.html', {
+                    'user': request.user,
+                    'profile': profile,
+                })
         
         # Fallback to default home.html
         return render(request, 'accounts/home_client.html', {

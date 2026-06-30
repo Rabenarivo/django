@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Changer le statut de la vente</title>
+    <style>
+        .container { max-width: 800px; margin: 20px auto; padding: 20px; }
+        .sale-info { border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .item { margin-left: 20px; padding: 5px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Changer le statut de la vente #{{ sale.id }}</h1>
+        
+        <div class="sale-info">
+            <p><strong>Patient:</strong> {{ sale.patient.first_name }} {{ sale.patient.last_name }}</p>
+            <p><strong>Montant total:</strong> {{ sale.total_amount }} Ar</p>
+            <p><strong>Statut actuel:</strong> {{ sale.get_status_display }}</p>
+            <p><strong>Date de création:</strong> {{ sale.created_at|date:"d/m/Y à H:i" }}</p>
+            {% if sale.notes %}
+                <p><strong>Notes:</strong> {{ sale.notes }}</p>
+            {% endif %}
+            
+            <h3>Articles:</h3>
+            {% for item in sale.items.all %}
+                <div class="item">
+                    - {{ item.medicine.name }}: {{ item.quantity }} x {{ item.unit_price }} Ar = {{ item.subtotal }} Ar
+                </div>
+            {% empty %}
+                <p>Aucun article dans cette vente</p>
+            {% endfor %}
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div style="margin-bottom:15px;">
+                <label for="id_status"><strong>Nouveau statut:</strong></label>
+                {{ form.status }}
+                {% if form.status.errors %}
+                    <p style="color:red;">{{ form.status.errors }}</p>
+                {% endif %}
+            </div>
+            <br>
+            <input type="submit" value="Changer le statut">
+            <a href="{% url 'list_sales' %}" style="margin-left:10px;">Annuler</a>
+        </form>
+    </div>
+</body>
+</html>

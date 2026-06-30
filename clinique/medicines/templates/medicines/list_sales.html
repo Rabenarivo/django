@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des ventes</title>
+</head>
+<body>
+    <h1>Liste des ventes</h1>
+    {% for sale in sales %}
+        <div>
+            <p>Vente {{ sale.id }}</p>
+            <p>Patient: {{ sale.patient }}</p>
+            <p>Montant total: {{ sale.total_amount }}</p>
+            <p>Statut: {{ sale.status }}</p>
+        </div>
+        <a href="{% url 'change_statut_sale' sale.id %}">Changer le statut</a>
+    {% empty %}
+        <p>Aucune vente trouvée.</p>
+    {% endfor %}
+</body>
+</html>
