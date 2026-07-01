@@ -1,3 +1,85 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
+from appointments.models import Appointment
+from .models import Consultation
+from .forms import ConsultationForm
+from doctors.models import Doctor
+from django.contrib.auth.decorators import login_required
 
-# Create your views here.
+
+@login_required
+def list_consultation(request):
+    consultations = Consultation.objects.all()
+    return render(request, 'consultation/list_consultation.html', {
+        'consultations': consultations
+    })
+
+
+@login_required
+def list_consultation_doctor(request):
+    # Debug information
+    print(f"Current user: {request.user}")
+    print(f"User ID: {request.user.id}")
+    
+    doctor = Doctor.objects.filter(user=request.user).first()
+    print(f"Found doctor: {doctor}")
+    
+    if not doctor:
+        print("No doctor found, redirecting to home")
+        return redirect('home')
+    
+    # Let's get all appointments first to check
+    all_appointments = Appointment.objects.all()
+    print(f"All appointments in DB: {[f'{a.id} - {a.patient} - {a.doctor} - {a.status}' for a in all_appointments]}")
+    
+    appointments = Appointment.objects.filter(doctor=doctor, status='Confirmed')
+    print(f"Filtered appointments: {appointments}")
+    
+    consultations = Consultation.objects.filter(appointment__doctor=doctor)
+    print(f"Consultations: {consultations}")
+    
+    form = ConsultationForm()
+    form.fields['appointment'].queryset = appointments
+    
+    return render(request, 'consultation/list_consultation_doctor.html', {
+        'appointments': appointments,
+        'consultations': consultations,
+        'form': form,
+        'debug_info': {
+            'user': request.user,
+            'doctor': doctor,
+            'all_appointments_count': all_appointments.count(),
+            'filtered_appointments_count': appointments.count()
+        }
+    })
+
+
+@login_required
+def create_consultation(request, appointment_id=None):
+    doctor = Doctor.objects.filter(user=request.user).first()
+    if not doctor:
+        return redirect('home')
+    confirmed_appointments = Appointment.objects.filter(doctor=doctor, status='Confirmed')
+    
+    # Get the appointment if ID is provided
+    selected_appointment = None
+    if appointment_id:
+        selected_appointment = get_object_or_404(Appointment, id=appointment_id, doctor=doctor, status='Confirmed')
+    
+    if request.method == 'POST':
+        form = ConsultationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('list_consultation_doctor')
+    else:
+        # Pre-fill the form with the selected appointment if available
+        if selected_appointment:
+            form = ConsultationForm(initial={'appointment': selected_appointment})
+        else:
+            form = ConsultationForm()
+    
+    form.fields['appointment'].queryset = confirmed_appointments
+    return render(request, 'consultation/create_consultation.html', {
+        'form': form,
+        'selected_appointment': selected_appointment
+    })
+

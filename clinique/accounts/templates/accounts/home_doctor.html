@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Accueil Docteur</title>
+</head>
+<body>
+    <h1>Bienvenue Dr {{ user.username }}!</h1>
+    <p>Vous êtes connecté en tant que Docteur.</p>
+    <a href="{% url 'logout' %}">Déconnexion</a>
+</body>
+</html>

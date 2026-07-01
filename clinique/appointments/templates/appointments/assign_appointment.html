@@ -1,0 +1,26 @@
+<!-- d:\ITU\django\clinique\appointments\templates\appointments\assign_appointment.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Assigner un rendez-vous</title>
+</head>
+<body>
+    <h1>Assigner un rendez-vous</h1>
+    
+    <h3>Détails du rendez-vous:</h3>
+    <p>Patient: {{ appointment.patient }}</p>
+    <p>Date: {{ appointment.appointment_date }}</p>
+    <p>Heure: {{ appointment.appointment_time }}</p>
+    <p>Raison: {{ appointment.reason }}</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Assigner</button>
+    </form>
+    
+    <br>
+    <a href="{% url 'list_consultation' %}">Retour à la liste</a>
+</body>
+</html>

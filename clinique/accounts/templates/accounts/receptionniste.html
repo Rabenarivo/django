@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Accueil Receptionceptionniste</title>
+</head>
+<body>
+    <h1>Bienvenue Receptionceptionniste {{ user.username }}!</h1>
+    <p>Vous êtes connecté en tant que Receptionceptionniste.</p>
+        <a href="{% url 'list_consultation' %}">Voir tous les rendez-vous</a>
+    <a href="{% url 'logout' %}">Déconnexion</a>
+</body>
+</html>
