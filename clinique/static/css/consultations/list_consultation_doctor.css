@@ -1,0 +1,14 @@
+/* consultations/list_consultation_doctor.css */
+.doctor-dashboard-container {
+    padding: 2rem 0;
+}
+
+.section-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.appointment-item, .consultation-item {
+    border-left: 4px solid #4274D9;
+}

@@ -88,3 +88,11 @@ def create_consultation(request, appointment_id=None):
         'selected_appointment': selected_appointment
     })
 
+
+@login_required
+def consultation_detail(request, consultation_id):
+    consultation = get_object_or_404(Consultation, id=consultation_id)
+    return render(request, 'consultation/consultation_detail.html', {
+        'consultation': consultation
+    })
+

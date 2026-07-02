@@ -1,21 +1,98 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste des ventes</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/medicines/list_sales.css' %}">
 </head>
 <body>
-    <h1>Liste des ventes</h1>
-    {% for sale in sales %}
-        <div>
-            <p>Vente {{ sale.id }}</p>
-            <p>Patient: {{ sale.patient }}</p>
-            <p>Montant total: {{ sale.total_amount }}</p>
-            <p>Statut: {{ sale.status }}</p>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-hospital me-2"></i>
+                Clinique Management
+            </a>
+            <div class="ms-auto">
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button"
+                            id="userDropdown" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle me-1"></i>
+                        {{ user.username }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                                <i class="bi bi-box-arrow-right me-1"></i>Déconnexion
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
-        <a href="{% url 'change_statut_sale' sale.id %}">Changer le statut</a>
-    {% empty %}
-        <p>Aucune vente trouvée.</p>
-    {% endfor %}
+    </nav>
+
+    <div class="list-container">
+        <div class="container">
+            <h1 class="mb-5 text-primary-clinique">
+                <i class="bi bi-bag-check me-2"></i>
+                Liste des ventes
+            </h1>
+
+            {% if sales %}
+                <div class="row g-4">
+                    {% for sale in sales %}
+                        <div class="col-lg-6 col-md-6">
+                            <div class="card sale-card h-100">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Vente #{{ sale.id }}</h5>
+                                    {% if sale.status == "PENDING" %}
+                                        <span class="badge bg-warning text-dark">En attente</span>
+                                    {% elif sale.status == "COMPLETED" %}
+                                        <span class="badge bg-success">Terminée</span>
+                                    {% elif sale.status == "CANCELLED" %}
+                                        <span class="badge bg-danger">Annulée</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ sale.status }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="card-body">
+                                    {% if sale.patient %}
+                                        <p class="mb-2">
+                                            <strong>Patient:</strong> {{ sale.patient.first_name }} {{ sale.patient.last_name }}
+                                        </p>
+                                    {% endif %}
+                                    <p class="mb-2">
+                                        <strong>Date:</strong> {{ sale.created_at|date:"d/m/Y à H:i" }}
+                                    </p>
+                                    <p class="mb-0">
+                                        <strong>Montant total:</strong> {{ sale.total_amount }} Ar
+                                    </p>
+                                </div>
+                                <div class="card-footer border-top-0 bg-transparent">
+                                    <a href="{% url 'change_statut_sale' sale.id %}" class="btn btn-primary btn-sm">
+                                        <i class="bi bi-pencil me-1"></i>Changer le statut
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info text-center">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Aucune vente trouvée.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 </body>
 </html>

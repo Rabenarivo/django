@@ -1,67 +1,145 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Créer une Prescription</title>
-    <style>
-        .medicine-item {
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 4px;
-        }
-        .remove-btn {
-            color: red;
-            cursor: pointer;
-            margin-top: 5px;
-        }
-    </style>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/prescriptions/create_prescription.css' %}">
 </head>
 <body>
-    <h1>Créer une Prescription</h1>
-    {% if selected_consultation %}
-        <p>Pour la consultation de {{ selected_consultation.appointment.patient.first_name }} {{ selected_consultation.appointment.patient.last_name }}</p>
-    {% endif %}
-    
-    <form method="post" id="prescription-form">
-        {% csrf_token %}
-        
-        <div>
-            <label for="consultation">Consultation :</label>
-            <select name="consultation" id="consultation" required>
-                {% for consultation in consultations %}
-                    <option value="{{ consultation.id }}" {% if selected_consultation and consultation.id == selected_consultation.id %}selected{% endif %}>
-                        {{ consultation.appointment.patient.first_name }} {{ consultation.appointment.patient.last_name }} - {{ consultation.consultation_date|date:"d/m/Y" }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
-        
-        <h3>Médicaments</h3>
-        <div id="medicine-items">
-            <!-- Initial medicine item -->
-            <div class="medicine-item">
-                <select name="medicine" required>
-                    <option value="">Sélectionner un médicament</option>
-                    {% for medicine in medicines %}
-                        <option value="{{ medicine.id }}">{{ medicine.name }} (Stock: {{ medicine.quantity_in_stock }})</option>
-                    {% endfor %}
-                </select>
-                <input type="number" name="quantity" placeholder="Quantité" min="1" value="1" required>
-                <input type="text" name="dosage" placeholder="Dosage" required>
-                <input type="text" name="frequency" placeholder="Fréquence" required>
-                <input type="text" name="duration" placeholder="Durée" required>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'list_consultation_doctor' %}">
+                <i class="bi bi-hospital me-2"></i>
+                Clinique Management
+            </a>
+            <div class="ms-auto">
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button"
+                            id="userDropdown" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle me-1"></i>
+                        {{ user.username }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                                <i class="bi bi-box-arrow-right me-1"></i>Déconnexion
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
-        
-        <button type="button" id="add-medicine-btn" style="margin: 10px 0;">Ajouter un médicament</button>
-        <br>
-        <input type="submit" value="Créer la prescription">
-    </form>
-    
-    <br>
-    <a href="{% url 'list_prescriptions_doctor' %}">Retour à la liste</a>
-    
+    </nav>
+
+    <div class="create-prescription-container">
+        <div class="container">
+            <h1 class="mb-5 text-primary-clinique">
+                <i class="bi bi-prescription2 me-2"></i>
+                Créer une Prescription
+            </h1>
+
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="card prescription-card">
+                        <div class="card-header">
+                            {% if selected_consultation %}
+                                <p class="mb-0">
+                                    <i class="bi bi-person-heart me-1"></i>
+                                    Pour la consultation de <strong>{{ selected_consultation.appointment.patient.first_name }} {{ selected_consultation.appointment.patient.last_name }}</strong>
+                                </p>
+                            {% endif %}
+                        </div>
+                        <div class="card-body p-4">
+                            <form method="post" id="prescription-form">
+                                {% csrf_token %}
+
+                                <div class="mb-4">
+                                    <label for="consultation" class="form-label fw-bold text-primary-clinique">
+                                        Consultation :
+                                    </label>
+                                    <select name="consultation" id="consultation" class="form-select" required>
+                                        {% for consultation in consultations %}
+                                            <option value="{{ consultation.id }}"
+                                                    {% if selected_consultation and consultation.id == selected_consultation.id %}selected{% endif %}>
+                                                {{ consultation.appointment.patient.first_name }} {{ consultation.appointment.patient.last_name }} - {{ consultation.consultation_date|date:"d/m/Y" }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <h4 class="mb-4 text-primary-clinique">
+                                    <i class="bi bi-capsule-pill me-2"></i>
+                                    Médicaments
+                                </h4>
+
+                                <div id="medicine-items" class="mb-4">
+                                    <!-- Initial medicine item -->
+                                    <div class="medicine-item card mb-3 p-3 border-1">
+                                        <div class="row g-3">
+                                            <div class="col-12 col-md-4">
+                                                <select name="medicine" class="form-select" required>
+                                                    <option value="">Sélectionner un médicament</option>
+                                                    {% for medicine in medicines %}
+                                                        <option value="{{ medicine.id }}">
+                                                            {{ medicine.name }} (Stock: {{ medicine.quantity_in_stock }})
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="col-12 col-md-2">
+                                                <input type="number" name="quantity" class="form-control"
+                                                       placeholder="Quantité" min="1" value="1" required>
+                                            </div>
+                                            <div class="col-12 col-md-2">
+                                                <input type="text" name="dosage" class="form-control"
+                                                       placeholder="Dosage" required>
+                                            </div>
+                                            <div class="col-12 col-md-2">
+                                                <input type="text" name="frequency" class="form-control"
+                                                       placeholder="Fréquence" required>
+                                            </div>
+                                            <div class="col-12 col-md-2">
+                                                <input type="text" name="duration" class="form-control"
+                                                       placeholder="Durée" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-3 align-items-center mb-4">
+                                    <button type="button" id="add-medicine-btn" class="btn btn-outline-primary">
+                                        <i class="bi bi-plus-circle me-2"></i>
+                                        Ajouter un médicament
+                                    </button>
+                                </div>
+
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <a href="{% url 'list_prescriptions_doctor' %}" class="btn btn-secondary">
+                                        <i class="bi bi-arrow-left me-1"></i>
+                                        Retour à la liste
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-circle me-1"></i>
+                                        Créer la prescription
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const medicineItemsContainer = document.getElementById('medicine-items');
@@ -71,37 +149,58 @@
                     { id: {{ medicine.id }}, name: "{{ medicine.name|escapejs }}", stock: {{ medicine.quantity_in_stock }} },
                 {% endfor %}
             ];
-            
+
             // Function to create a new medicine item HTML
             function createMedicineItem() {
                 const itemDiv = document.createElement('div');
-                itemDiv.className = 'medicine-item';
-                
-                let selectHTML = '<select name="medicine" required><option value="">Sélectionner un médicament</option>';
+                itemDiv.className = 'medicine-item card mb-3 p-3 border-1';
+
+                let selectHTML = '<select name="medicine" class="form-select" required><option value="">Sélectionner un médicament</option>';
                 medicines.forEach(med => {
                     selectHTML += `<option value="${med.id}">${med.name} (Stock: ${med.stock})</option>`;
                 });
                 selectHTML += '</select>';
-                
+
                 itemDiv.innerHTML = `
-                    ${selectHTML}
-                    <input type="number" name="quantity" placeholder="Quantité" min="1" value="1" required>
-                    <input type="text" name="dosage" placeholder="Dosage" required>
-                    <input type="text" name="frequency" placeholder="Fréquence" required>
-                    <input type="text" name="duration" placeholder="Durée" required>
-                    <div class="remove-btn" onclick="removeMedicineItem(this)">Supprimer</div>
+                    <div class="row g-3">
+                        <div class="col-12 col-md-4">
+                            ${selectHTML}
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <input type="number" name="quantity" class="form-control"
+                                   placeholder="Quantité" min="1" value="1" required>
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <input type="text" name="dosage" class="form-control"
+                                   placeholder="Dosage" required>
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <input type="text" name="frequency" class="form-control"
+                                   placeholder="Fréquence" required>
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <input type="text" name="duration" class="form-control"
+                                   placeholder="Durée" required>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button type="button" class="btn btn-outline-danger btn-sm remove-btn" onclick="removeMedicineItem(this)">
+                            <i class="bi bi-x-circle me-1"></i>
+                            Supprimer
+                        </button>
+                    </div>
                 `;
-                
+
                 return itemDiv;
             }
-            
+
             // Add click event to add button
             addMedicineBtn.addEventListener('click', function() {
                 const newItem = createMedicineItem();
                 medicineItemsContainer.appendChild(newItem);
             });
         });
-        
+
         // Function to remove a medicine item
         function removeMedicineItem(element) {
             const item = element.closest('.medicine-item');

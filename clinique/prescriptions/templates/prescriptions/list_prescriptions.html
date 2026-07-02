@@ -1,28 +1,95 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mes Prescriptions</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/prescriptions/list_prescriptions.css' %}">
 </head>
 <body>
-    <h1>Mes Prescriptions</h1>
-    {% if prescriptions %}
-        <ul>
-            {% for prescription in prescriptions %}
-                <li>
-                    <strong>Patient:</strong> {{ prescription.consultation.appointment.patient.first_name }} {{ prescription.consultation.appointment.patient.last_name }}<br>
-                    <strong>Date:</strong> {{ prescription.created_at|date:"d/m/Y H:i" }}<br>
-                    <strong>Nombre de médicaments:</strong> {{ prescription.items.count }}<br>
-                    <a href="{% url 'prescription_detail' prescription.id %}">Voir les détails</a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>Aucune prescription trouvée.</p>
-    {% endif %}
-    <br>
-    <a href="{% url 'create_prescription' %}">Créer une nouvelle prescription</a>
-    <br>
-    <a href="{% url 'list_consultation_doctor' %}">Retour aux consultations</a>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'list_consultation_doctor' %}">
+                <i class="bi bi-hospital me-2"></i>
+                Clinique Management
+            </a>
+            <div class="ms-auto">
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button"
+                            id="userDropdown" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle me-1"></i>
+                        {{ user.username }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                                <i class="bi bi-box-arrow-right me-1"></i>Déconnexion
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="prescriptions-list-container">
+        <div class="container">
+            <h1 class="mb-5 text-primary-clinique">
+                <i class="bi bi-prescription2 me-2"></i>
+                Mes Prescriptions
+            </h1>
+
+            {% if prescriptions %}
+                <div class="row g-4">
+                    {% for prescription in prescriptions %}
+                        <div class="col-lg-6 col-md-6">
+                            <div class="card prescription-card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title text-primary-clinique fw-bold">
+                                        Prescription #{{ prescription.id }}
+                                    </h5>
+                                    <h6 class="card-subtitle text-muted mb-3">
+                                        <i class="bi bi-calendar me-1"></i>
+                                        {{ prescription.created_at|date:"d/m/Y à H:i" }}
+                                    </h6>
+                                    <p class="card-text mb-2">
+                                        <strong>Patient:</strong> {{ prescription.consultation.appointment.patient.first_name }} {{ prescription.consultation.appointment.patient.last_name }}
+                                    </p>
+                                    <p class="card-text mb-3">
+                                        <strong>Nombre de médicaments:</strong> {{ prescription.items.count }}
+                                    </p>
+                                    <a href="{% url 'prescription_detail' prescription.id %}" class="btn btn-primary btn-sm">
+                                        <i class="bi bi-eye me-1"></i>Voir les détails
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info text-center">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Aucune prescription trouvée.
+                </div>
+            {% endif %}
+
+            <div class="d-flex gap-2 mt-5 flex-wrap">
+                <a href="{% url 'create_prescription' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i>Créer une nouvelle prescription
+                </a>
+                <a href="{% url 'list_consultation_doctor' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Retour aux consultations
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 </body>
 </html>

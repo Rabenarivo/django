@@ -1,0 +1,23 @@
+/* accounts/login.css */
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #293681 0%, #4274D9 50%, #95CCDD 100%);
+}
+
+.login-card {
+    box-shadow: 0 10px 40px rgba(41, 54, 129, 0.3);
+    border-radius: 16px;
+    border: none;
+}
+
+.login-card .card-header {
+    border-radius: 16px 16px 0 0 !important;
+    padding: 2rem;
+}
+
+.login-card .card-body {
+    padding: 2.5rem;
+}
