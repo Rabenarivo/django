@@ -1,0 +1,15 @@
+/* medicines/list_sales.css */
+.sales-list-container {
+    padding: 2rem 0;
+}
+
+.sale-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.sale-card:hover {
+    box-shadow: 0 6px 20px rgba(41, 54, 129, 0.2);
+}

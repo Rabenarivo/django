@@ -1,0 +1,59 @@
+/* Base CSS - Clinique Management System */
+:root {
+    --primary-dark: #293681;
+    --primary: #4274D9;
+    --secondary: #95CCDD;
+    --light: #D0E7E6;
+}
+
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.btn-primary {
+    background-color: var(--primary) !important;
+    border-color: var(--primary) !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark) !important;
+    border-color: var(--primary-dark) !important;
+}
+
+.card-header {
+    background-color: var(--primary);
+    color: white;
+}
+
+.navbar {
+    background-color: var(--primary-dark) !important;
+}
+
+.navbar .navbar-brand, .navbar .nav-link {
+    color: white !important;
+}
+
+.navbar .nav-link:hover {
+    color: var(--light) !important;
+}
+
+.text-primary-clinique {
+    color: var(--primary-dark) !important;
+}
+
+.bg-primary-clinique {
+    background-color: var(--primary) !important;
+}
+
+.bg-secondary-clinique {
+    background-color: var(--secondary) !important;
+}
+
+.bg-light-clinique {
+    background-color: var(--light) !important;
+}
+
+.border-primary-clinique {
+    border-color: var(--primary-dark) !important;
+}

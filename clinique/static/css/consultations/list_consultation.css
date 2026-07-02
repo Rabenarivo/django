@@ -1,0 +1,15 @@
+/* consultations/list_consultation.css */
+.consultation-list-container {
+    padding: 2rem 0;
+}
+
+.consultation-card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.consultation-card:hover {
+    box-shadow: 0 5px 15px rgba(66, 116, 217, 0.2);
+}

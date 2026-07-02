@@ -1,0 +1,12 @@
+/* accounts/create_user.css */
+.create-user-container {
+    min-height: 100vh;
+    padding: 2rem 0;
+    background-color: #D0E7E6;
+}
+
+.create-user-card {
+    box-shadow: 0 5px 20px rgba(41, 54, 129, 0.2);
+    border-radius: 12px;
+    border: none;
+}
