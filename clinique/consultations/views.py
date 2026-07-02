@@ -16,20 +16,10 @@ def list_consultation(request):
 
 @login_required
 def list_consultation_doctor(request):
-    # Debug information
-    print(f"Current user: {request.user}")
-    print(f"User ID: {request.user.id}")
-    
     doctor = Doctor.objects.filter(user=request.user).first()
-    print(f"Found doctor: {doctor}")
-    
     if not doctor:
-        print("No doctor found, redirecting to home")
         return redirect('home')
-    
-    # Let's get all appointments first to check
     all_appointments = Appointment.objects.all()
-    print(f"All appointments in DB: {[f'{a.id} - {a.patient} - {a.doctor} - {a.status}' for a in all_appointments]}")
     
     appointments = Appointment.objects.filter(doctor=doctor, status='Confirmed')
     print(f"Filtered appointments: {appointments}")
