@@ -1,3 +1,5 @@
+# medical_records/admin.py
 from django.contrib import admin
+from .models import MedicalRecord, Allergy, SurgeryHistory
 
-# Register your models here.
+admin.site.register([MedicalRecord, Allergy, SurgeryHistory])
