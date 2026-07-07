@@ -41,11 +41,10 @@ def home_view(request):
                 events = []
                 doctor = getattr(request.user, 'doctor', None)
                 if doctor:
-                    # N'afficher que les rendez-vous Confirmés ET qui n'ont pas encore de prescription
+                    # N'afficher que les rendez-vous Confirmés ET qui n'ont pas encore de consultation
                     appointments = Appointment.objects.filter(
                         doctor=doctor, 
                         status='Confirmed',
-                        consultation__prescription__isnull=True
                     ).distinct()
                     
                     for appt in appointments:
