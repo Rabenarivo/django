@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Prescription, PrescriptionItem
 from .forms import PrescriptionForm, PrescriptionItemForm
 from consultations.models import Consultation
-from medicines.models import Medicine, StockMovement , Sale
+from medicines.models import Medicine, StockMovement, Sale, SaleItem
 from doctors.models import Doctor
 from appointments.models import Appointment
 from patients.models import Patient
@@ -50,6 +50,17 @@ def create_prescription(request, consultation_id=None):
         frequencies = request.POST.getlist('frequency')
         durations = request.POST.getlist('duration')
         
+        # Create a single Sale for this prescription
+        sale = None
+        has_medicines = any(medicine_ids)
+        if has_medicines:
+            sale = Sale.objects.create(
+                patient=consultation.appointment.patient,
+                status='PENDING',
+                total_amount=0,
+                notes=f"Prescription for consultation {consultation.id}"
+            )
+        
         # Create PrescriptionItem for each medicine and update stock
         for i in range(len(medicine_ids)):
             if medicine_ids[i]:  # Only create if medicine is selected
@@ -66,12 +77,18 @@ def create_prescription(request, consultation_id=None):
                     duration=durations[i]
                 )
                 
-                # Create StockMovement (OUT)
-                Sale.objects.create(
-                    patient=consultation.appointment.patient,
-                    total_amount=qty * medicine.price,
-                    status='PENDING'
-                )
+                # Create SaleItem
+                if sale:
+                    SaleItem.objects.create(
+                        sale=sale,
+                        medicine=medicine,
+                        quantity=qty,
+                        unit_price=medicine.price,
+                        subtotal=qty * medicine.price
+                    )
+        
+        if sale:
+            sale.calculate_total()
         
         return redirect('prescription_detail', prescription_id=prescription.id)
     

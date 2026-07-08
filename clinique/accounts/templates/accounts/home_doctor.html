@@ -104,6 +104,21 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Calendar Section -->
+                <div class="col-lg-6">
+                    <div class="card section-card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-calendar-event me-2"></i>
+                                Mon Agenda (Rendez-vous Confirmés)
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="calendar"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -111,5 +126,45 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    
+    <!-- FullCalendar JS -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+    <!-- FullCalendar locale FR -->
+    <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/locales/fr.global.min.js'></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var eventsData = {{ events_json|safe }};
+
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'timeGridDay', // Vue par jour avec les heures
+                locale: 'fr',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                buttonText: {
+                    today: "Aujourd'hui",
+                    month: 'Mois',
+                    week: 'Semaine',
+                    day: 'Jour',
+                    list: 'Liste'
+                },
+                slotMinTime: '07:00:00', // Heure de début d'affichage
+                slotMaxTime: '22:00:00', // Étendu pour voir les rdv du soir (ex: 20h30)
+                allDaySlot: false,
+                events: eventsData,
+                eventClick: function(info) {
+                    if (info.event.url) {
+                        window.location.href = info.event.url;
+                        info.jsEvent.preventDefault(); // prevents browser from following link in current tab.
+                    }
+                }
+            });
+            calendar.render();
+        });
+    </script>
 </body>
 </html>

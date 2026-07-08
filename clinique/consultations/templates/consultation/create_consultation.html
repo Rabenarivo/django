@@ -29,49 +29,118 @@
     <div class="create-consultation-container">
         <div class="container">
             <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div class="card create-consultation-card">
-                        <div class="card-header">
-                            <h3 class="mb-0">
+                <div class="col-lg-11">
+                    <div class="card create-consultation-card shadow">
+                        <div class="card-header bg-primary text-white">
+                            <h3 class="mb-0 text-white">
                                 <i class="bi bi-file-medical me-2"></i>
                                 Créer une consultation
                             </h3>
                         </div>
                         <div class="card-body p-4">
-                            {% if selected_consultation %}
-                                <div class="alert alert-info mb-4">
-                                    <i class="bi bi-info-circle me-1"></i>
-                                    Pour le rendez-vous de : <strong>{{ selected_consultation.patient.first_name }} {{ selected_consultation.patient.last_name }}</strong>
-                                </div>
-                            {% endif %}
+                            <div class="row">
+                                <!-- LEFT COLUMN: FORM -->
+                                <div class="col-md-7 border-end pe-md-4">
+                                    {% if selected_appointment %}
+                                        <div class="alert alert-info mb-4">
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            Pour le rendez-vous de : <strong>{{ selected_appointment.patient.first_name }} {{ selected_appointment.patient.last_name }}</strong>
+                                        </div>
+                                    {% endif %}
 
-                            {% if form.errors %}
-                                <div class="alert alert-danger mb-4">
-                                    <strong>Erreurs dans le formulaire :</strong>
-                                    <ul class="mb-0">
-                                        {% for field, errors in form.errors.items %}
-                                            {% for error in errors %}
-                                                <li>{{ field }}: {{ error }}</li>
-                                            {% endfor %}
+                                    {% if form.errors %}
+                                        <div class="alert alert-danger mb-4">
+                                            <strong>Erreurs dans le formulaire :</strong>
+                                            <ul class="mb-0">
+                                                {% for field, errors in form.errors.items %}
+                                                    {% for error in errors %}
+                                                        <li>{{ field }}: {{ error }}</li>
+                                                    {% endfor %}
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    {% endif %}
+
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        
+                                        <h5 class="text-primary mb-3"><i class="bi bi-pencil-square me-2"></i>Détails de la consultation</h5>
+                                        
+                                        {% for field in form %}
+                                            <div class="mb-3">
+                                                <label for="{{ field.id_for_label }}" class="form-label fw-bold">{{ field.label }}</label>
+                                                {{ field }}
+                                                {% if field.help_text %}
+                                                    <div class="form-text">{{ field.help_text }}</div>
+                                                {% endif %}
+                                                {% if field.errors %}
+                                                    <div class="invalid-feedback d-block">
+                                                        {% for error in field.errors %}
+                                                            {{ error }}
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
                                         {% endfor %}
-                                    </ul>
-                                </div>
-                            {% endif %}
 
-                            <form method="post">
-                                {% csrf_token %}
-                                {{ form.as_p }}
-                                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                                    <a href="{% url 'list_consultation_doctor' %}" class="btn btn-secondary">
-                                        <i class="bi bi-arrow-left me-1"></i>
-                                        Retour
-                                    </a>
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="bi bi-check-circle me-1"></i>
-                                        Créer la consultation
-                                    </button>
+                                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4 pt-3 border-top">
+                                            <a href="{% url 'list_consultation_doctor' %}" class="btn btn-outline-secondary">
+                                                <i class="bi bi-arrow-left me-1"></i>
+                                                Retour
+                                            </a>
+                                            <button type="submit" class="btn btn-primary px-4">
+                                                <i class="bi bi-check-circle me-1"></i>
+                                                Créer la consultation
+                                            </button>
+                                        </div>
+                                    </form>
                                 </div>
-                            </form>
+                                
+                                <!-- RIGHT COLUMN: MEDICAL PROFILE -->
+                                <div class="col-md-5 ps-md-4 mt-4 mt-md-0">
+                                    {% if selected_appointment %}
+                                        <div class="card h-100 border-info">
+                                            <div class="card-header bg-info text-white">
+                                                <h5 class="mb-0 text-white"><i class="bi bi-file-earmark-medical me-2"></i>Fiche Médicale du Patient</h5>
+                                            </div>
+                                            <div class="card-body bg-light">
+                                                {% if medical_profile %}
+                                                    <div class="mb-3">
+                                                        <strong><i class="bi bi-activity text-primary me-1"></i>Antécédents médicaux :</strong>
+                                                        <p class="mb-0 text-muted">{{ medical_profile.medical_history|default:"Aucun" }}</p>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <strong><i class="bi bi-bandaid text-primary me-1"></i>Antécédents chirurgicaux :</strong>
+                                                        <p class="mb-0 text-muted">{{ medical_profile.surgical_history|default:"Aucun" }}</p>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <strong><i class="bi bi-people text-primary me-1"></i>Antécédents familiaux :</strong>
+                                                        <p class="mb-0 text-muted">{{ medical_profile.family_history|default:"Aucun" }}</p>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <strong><i class="bi bi-exclamation-triangle text-danger me-1"></i>Allergies :</strong>
+                                                        <p class="mb-0 text-muted">{{ medical_profile.allergies|default:"Aucune" }}</p>
+                                                    </div>
+                                                    <div>
+                                                        <strong><i class="bi bi-exclamation-circle text-warning me-1"></i>Facteurs de risque :</strong>
+                                                        <p class="mb-0 text-muted">{{ medical_profile.risk_factors|default:"Aucun" }}</p>
+                                                    </div>
+                                                {% else %}
+                                                    <div class="text-center text-muted py-5">
+                                                        <i class="bi bi-clipboard-x display-4 d-block mb-3"></i>
+                                                        <p class="mb-0"><em>Aucune fiche médicale enregistrée pour ce patient.</em></p>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <div class="text-center text-muted py-5 h-100 d-flex flex-column justify-content-center bg-light rounded border border-dashed">
+                                            <i class="bi bi-person-bounding-box display-4 d-block mb-3 text-secondary"></i>
+                                            <p class="mb-0"><em>Veuillez sélectionner un rendez-vous pour voir la fiche médicale.</em></p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -1,3 +1,4 @@
+import json
 from django.contrib.auth import logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login as auth_login
@@ -37,9 +38,29 @@ def home_view(request):
                     'profile': profile,
                 })
             elif role == 'DOCTOR':
+                events = []
+                doctor = getattr(request.user, 'doctor', None)
+                if doctor:
+                    # N'afficher que les rendez-vous Confirmés ET qui n'ont pas encore de consultation
+                    appointments = Appointment.objects.filter(
+                        doctor=doctor, 
+                        status='Confirmed',
+                        consultation__isnull=True
+                    ).distinct()
+                    
+                    for appt in appointments:
+                        events.append({
+                            'title': f"{appt.patient.first_name} {appt.patient.last_name}",
+                            'start': f"{appt.appointment_date}T{appt.appointment_time}",
+                            # URL pour aller vers la consultation (à adapter si besoin)
+                            'url': f"/consultations/create/{appt.id}/"
+                        })
+                events_json = json.dumps(events, default=str)
+
                 return render(request, 'accounts/home_doctor.html', {
                     'user': request.user,
                     'profile': profile,
+                    'events_json': events_json,
                 })
             elif role == 'RECEPTIONIST':
                 return render(request, 'accounts/receptionniste.html', {

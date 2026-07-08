@@ -72,10 +72,15 @@ def create_consultation(request, appointment_id=None):
         else:
             form = ConsultationForm()
     
+    medical_profile = None
+    if selected_appointment and hasattr(selected_appointment.patient, 'medical_profile'):
+        medical_profile = selected_appointment.patient.medical_profile
+
     form.fields['appointment'].queryset = confirmed_appointments
     return render(request, 'consultation/create_consultation.html', {
         'form': form,
-        'selected_appointment': selected_appointment
+        'selected_appointment': selected_appointment,
+        'medical_profile': medical_profile
     })
 
 
