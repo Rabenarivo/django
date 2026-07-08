@@ -45,6 +45,7 @@ def home_view(request):
                     appointments = Appointment.objects.filter(
                         doctor=doctor, 
                         status='Confirmed',
+                        consultation__isnull=True
                     ).distinct()
                     
                     for appt in appointments:
