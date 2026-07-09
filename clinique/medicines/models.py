@@ -1,20 +1,30 @@
 from django.db import models
 
 
+class Medicine_type(models.Model):
+    name = models.CharField(max_length=200)
+    def __str__(self):
+        return self.name
+
 class Medicine(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
-    manufacturer = models.CharField(max_length=200, blank=True, null=True)
-    dosage_form = models.CharField(max_length=100, blank=True, null=True)
-    strength = models.CharField(max_length=100, blank=True, null=True)
-    quantity_in_stock = models.PositiveIntegerField(default=0)
-    price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    expiration_date = models.DateField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
+    type = models.ForeignKey(Medicine_type, on_delete=models.CASCADE, related_name='medicines', null=True, blank=True)
+    stock_min = models.PositiveIntegerField(default=2)
+    price = models.DecimalField(max_digits=10, decimal_places=3, default=0)
     def __str__(self):
         return self.name
+
+class Medicine_stock(models.Model):
+    medicine = models.ForeignKey(Medicine, on_delete=models.CASCADE, related_name='stock')
+    quantity_in_stock = models.PositiveIntegerField(default=0)
+    numero_lot = models.CharField(max_length=200)
+    expiration_date = models.DateField(blank=True, null=True)
+    def __str__(self):
+        return self.medicine.name
+
+
+
 
 
 class StockMovement(models.Model):
@@ -38,15 +48,24 @@ class StockMovement(models.Model):
         return f"{self.get_movement_type_display()} - {self.medicine.name} ({self.quantity})"
 
     def save(self, *args, **kwargs):
-        # Update medicine stock when saving movement
-        if not self.pk:  # Only if new movement
-            if self.movement_type == 'IN':
-                self.medicine.quantity_in_stock += self.quantity
-            elif self.movement_type == 'OUT':
-                self.medicine.quantity_in_stock -= self.quantity
-            elif self.movement_type == 'ADJ' and self.adjustment_value is not None:
-                self.medicine.quantity_in_stock = self.adjustment_value
-        self.medicine.save()
+        # Mettre à jour le stock dans les lots (Medicine_stock)
+        if not self.pk:  # Seulement à la création
+            if self.movement_type == 'OUT':
+                # Logique FIFO : on déduit d'abord des lots qui périment le plus tôt
+                remaining = self.quantity
+                stocks = self.medicine.stock.filter(quantity_in_stock__gt=0).order_by('expiration_date')
+                for stock in stocks:
+                    if remaining <= 0:
+                        break
+                    if stock.quantity_in_stock >= remaining:
+                        stock.quantity_in_stock -= remaining
+                        stock.save()
+                        remaining = 0
+                    else:
+                        remaining -= stock.quantity_in_stock
+                        stock.quantity_in_stock = 0
+                        stock.save()
+            # Pour 'IN', on ne fait rien car le stock est déjà créé dans Medicine_stock
         super().save(*args, **kwargs)
 
 
