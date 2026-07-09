@@ -33,9 +33,43 @@ def home_view(request):
         if profile:
             role = profile.role.upper()
             if role == 'ADMIN':
+                from django.contrib.auth.models import User
+                from medicines.models import Sale
+                
+                # Statistics
+                pending_count = Appointment.objects.filter(status='Pending').count()
+                confirmed_count = Appointment.objects.filter(status='Confirmed').count()
+                users_count = User.objects.count()
+                sales_count = Sale.objects.count()
+
+                # Calendar events
+                events = []
+                all_appointments = Appointment.objects.all()
+                for appt in all_appointments:
+                    # Determine color based on status
+                    if appt.status == 'Confirmed':
+                        color = 'green' # "accepté" -> vert
+                    elif appt.status == 'Pending':
+                        color = '#ffc107' # "non assigné" -> jaune
+                    else:
+                        color = '#dc3545' # "confirmé" (annulé/autre) -> rouge
+
+                    events.append({
+                        'title': f"{appt.patient.first_name} {appt.patient.last_name} ({appt.get_status_display()})",
+                        'start': f"{appt.appointment_date}T{appt.appointment_time}",
+                        'color': color,
+                        'url': f"/appointments/assign/{appt.id}/" if appt.status == 'Pending' else "#"
+                    })
+                events_json = json.dumps(events, default=str)
+
                 return render(request, 'accounts/home_admin.html', {
                     'user': request.user,
                     'profile': profile,
+                    'pending_count': pending_count,
+                    'confirmed_count': confirmed_count,
+                    'users_count': users_count,
+                    'sales_count': sales_count,
+                    'events_json': events_json,
                 })
             elif role == 'DOCTOR':
                 events = []

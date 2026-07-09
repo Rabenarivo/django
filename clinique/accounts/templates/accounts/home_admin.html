@@ -45,64 +45,93 @@
             </h1>
 
             <div class="row g-4 mb-5">
-                <div class="col-md-4">
-                    <div class="card stats-card">
+                <div class="col-md-3">
+                    <div class="card stats-card border-warning">
                         <div class="card-body text-center p-4">
-                            <div class="stats-icon text-primary-clinique mb-3">
-                                <i class="bi bi-calendar3"></i>
+                            <div class="stats-icon text-warning mb-3">
+                                <i class="bi bi-hourglass-split"></i>
                             </div>
-                            <h3 class="fw-bold text-primary-clinique">0</h3>
-                            <p class="text-muted mb-0">Rendez-vous</p>
+                            <h3 class="fw-bold text-warning">{{ pending_count }}</h3>
+                            <p class="text-muted mb-0">Rendez-vous (En attente)</p>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <div class="card stats-card border-success">
+                        <div class="card-body text-center p-4">
+                            <div class="stats-icon text-success mb-3">
+                                <i class="bi bi-calendar-check"></i>
+                            </div>
+                            <h3 class="fw-bold text-success">{{ confirmed_count }}</h3>
+                            <p class="text-muted mb-0">Rendez-vous (Confirmés)</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
                     <div class="card stats-card">
                         <div class="card-body text-center p-4">
                             <div class="stats-icon text-primary mb-3">
                                 <i class="bi bi-people"></i>
                             </div>
-                            <h3 class="fw-bold text-primary">0</h3>
+                            <h3 class="fw-bold text-primary">{{ users_count }}</h3>
                             <p class="text-muted mb-0">Utilisateurs</p>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="card stats-card">
                         <div class="card-body text-center p-4">
                             <div class="stats-icon text-secondary-clinique mb-3">
                                 <i class="bi bi-bag-plus"></i>
                             </div>
-                            <h3 class="fw-bold text-secondary-clinique">0</h3>
-                            <p class="text-muted mb-0">Ventes</p>
+                            <h3 class="fw-bold text-secondary-clinique">{{ sales_count }}</h3>
+                            <p class="text-muted mb-0">Ventes (Totales)</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card section-card">
-                <div class="card-header">
-                    <h4 class="mb-0">Actions rapides</h4>
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="card section-card mb-4 h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-lightning-charge me-2"></i>
+                                Actions rapides
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-3">
+                                <a href="{% url 'list_consultation' %}" class="btn btn-outline-primary">
+                                    <i class="bi bi-calendar3 me-2"></i>
+                                    Gérer les rendez-vous
+                                </a>
+                                <a href="{% url 'list_sales' %}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-bag me-2"></i>
+                                    Gérer les ventes
+                                </a>
+                                <a href="{% url 'patients:create_patient' %}" class="btn btn-outline-info">
+                                    <i class="bi bi-person-plus me-2"></i>
+                                    Créer un patient
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <a href="{% url 'list_consultation' %}" class="btn btn-outline-primary w-100">
-                                <i class="bi bi-calendar3 me-2"></i>
-                                Voir les rendez-vous
-                            </a>
+                
+                <div class="col-lg-8">
+                    <div class="card section-card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="bi bi-calendar-range me-2"></i>
+                                Agenda Global des Rendez-vous
+                            </h5>
+                            <span class="badge bg-success">Accepté/Confirmé</span>
+                            <span class="badge bg-warning text-dark">Non assigné</span>
+                            <span class="badge bg-danger">Autre</span>
                         </div>
-                        <div class="col-md-6">
-                            <a href="{% url 'list_sales' %}" class="btn btn-outline-secondary w-100">
-                                <i class="bi bi-bag me-2"></i>
-                                Voir les ventes
-                            </a>
-                        </div>
-                        <div class="col-md-6">
-                            <a href="{% url 'patients:create_patient' %}" class="btn btn-outline-secondary w-100">
-                                <i class="bi bi-bag me-2"></i>
-                                Creer patient
-                            </a>
+                        <div class="card-body p-2">
+                            <div id="calendar"></div>
                         </div>
                     </div>
                 </div>
@@ -110,7 +139,46 @@
         </div>
     </div>
 
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- FullCalendar JS -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/locales/fr.global.min.js'></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var eventsData = {{ events_json|safe }};
+
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'timeGridWeek',
+                locale: 'fr',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                buttonText: {
+                    today: "Aujourd'hui",
+                    month: 'Mois',
+                    week: 'Semaine',
+                    day: 'Jour',
+                },
+                slotMinTime: '07:00:00',
+                slotMaxTime: '20:00:00',
+                allDaySlot: false,
+                height: 600,
+                events: eventsData,
+                eventClick: function(info) {
+                    if (info.event.url && info.event.url !== '#') {
+                        window.location.href = info.event.url;
+                        info.jsEvent.preventDefault();
+                    }
+                }
+            });
+            calendar.render();
+        });
+    </script>
 </body>
 </html>
