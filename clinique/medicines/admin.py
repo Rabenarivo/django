@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Medicine, StockMovement, Sale, SaleItem
+from .models import Medicine, StockMovement, Sale, SaleItem , Medicine_stock , Medicine_type
 
 
 class StockMovementInline(admin.TabularInline):
@@ -10,8 +10,14 @@ class StockMovementInline(admin.TabularInline):
 
 class MedicineAdmin(admin.ModelAdmin):
     inlines = [StockMovementInline]
-    list_display = ['name', 'quantity_in_stock', 'price', 'expiration_date']
+    list_display = ['name', 'type', 'stock_min', 'price']
 
+class Medicine_stockAdmin(admin.ModelAdmin):
+    list_display = ['medicine', 'quantity_in_stock', 'numero_lot', 'expiration_date']
+    readonly_fields = ['created_at']    
+
+class Medicine_typeAdmin(admin.ModelAdmin):
+    list_display = ['name']
 
 class SaleItemInline(admin.TabularInline):
     model = SaleItem
@@ -33,3 +39,5 @@ admin.site.register(Medicine, MedicineAdmin)
 admin.site.register(StockMovement)
 admin.site.register(Sale, SaleAdmin)
 admin.site.register(SaleItem)
+admin.site.register(Medicine_stock)
+admin.site.register(Medicine_type)

@@ -33,9 +33,43 @@ def home_view(request):
         if profile:
             role = profile.role.upper()
             if role == 'ADMIN':
+                from django.contrib.auth.models import User
+                from medicines.models import Sale
+                
+                # Statistics
+                pending_count = Appointment.objects.filter(status='Pending').count()
+                confirmed_count = Appointment.objects.filter(status='Confirmed').count()
+                users_count = User.objects.count()
+                sales_count = Sale.objects.count()
+
+                # Calendar events
+                events = []
+                all_appointments = Appointment.objects.all()
+                for appt in all_appointments:
+                    # Determine color based on status
+                    if appt.status == 'Confirmed':
+                        color = 'green' # "accepté" -> vert
+                    elif appt.status == 'Pending':
+                        color = '#ffc107' # "non assigné" -> jaune
+                    else:
+                        color = '#dc3545' # "confirmé" (annulé/autre) -> rouge
+
+                    events.append({
+                        'title': f"{appt.patient.first_name} {appt.patient.last_name} ({appt.get_status_display()})",
+                        'start': f"{appt.appointment_date}T{appt.appointment_time}",
+                        'color': color,
+                        'url': f"/appointments/assign/{appt.id}/" if appt.status == 'Pending' else "#"
+                    })
+                events_json = json.dumps(events, default=str)
+
                 return render(request, 'accounts/home_admin.html', {
                     'user': request.user,
                     'profile': profile,
+                    'pending_count': pending_count,
+                    'confirmed_count': confirmed_count,
+                    'users_count': users_count,
+                    'sales_count': sales_count,
+                    'events_json': events_json,
                 })
             elif role == 'DOCTOR':
                 events = []
@@ -74,9 +108,22 @@ def home_view(request):
                     'form': form,
                 })
             elif role == 'PHARMARMACIST':
+                from medicines.models import Medicine, Sale, StockMovement
+                from django.utils import timezone
+                
+                today = timezone.now().date()
+                sales_today_count = Sale.objects.filter(created_at__date=today).count()
+                medicines_count = Medicine.objects.count()
+                movements_in_count = StockMovement.objects.filter(movement_type='IN').count()
+                movements_out_count = StockMovement.objects.filter(movement_type='OUT').count()
+
                 return render(request, 'accounts/home_pharmacist.html', {
                     'user': request.user,
                     'profile': profile,
+                    'sales_today_count': sales_today_count,
+                    'medicines_count': medicines_count,
+                    'movements_in_count': movements_in_count,
+                    'movements_out_count': movements_out_count,
                 })
         
         # Fallback to default home.html
@@ -133,3 +180,42 @@ def create_user(request):
 
     return render(request, 'accounts/create_user.html', {'form': form})
 
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.db.models import Sum, Count
+from django.db.models.functions import TruncMonth, TruncDay
+from django.http import JsonResponse
+from medicines.models import Sale, SaleItem
+from patients.models import Patient
+
+def is_admin(user):
+    return hasattr(user, 'profile') and user.profile.role.upper() == 'ADMIN'
+
+@login_required
+@user_passes_test(is_admin)
+def admin_statistics_view(request):
+    # 1. Top 5 Médicaments Vendus
+    top_medicines = SaleItem.objects.values('medicine__name').annotate(
+        total_quantity=Sum('quantity')
+    ).order_by('-total_quantity')[:5]
+    
+    # 2. Chiffre d'Affaires par Mois
+    ca_by_month = Sale.objects.filter(status='COMPLETED').annotate(
+        month=TruncMonth('created_at')
+    ).values('month').annotate(
+        total_ca=Sum('total_amount')
+    ).order_by('month')
+
+    # 3. Nouveaux Clients par Mois
+    patients_by_month = Patient.objects.annotate(
+        month=TruncMonth('created_at')
+    ).values('month').annotate(
+        total_patients=Count('id')
+    ).order_by('month')
+
+    context = {
+        'top_medicines': json.dumps([{'name': m['medicine__name'], 'qty': m['total_quantity']} for m in top_medicines]),
+        'ca_by_month': json.dumps([{'month': str(c['month'].date()), 'total': float(c['total_ca'])} for c in ca_by_month if c['month']]),
+        'patients_by_month': json.dumps([{'month': str(p['month'].date()), 'total': p['total_patients']} for p in patients_by_month if p['month']]),
+    }
+
+    return render(request, 'accounts/admin_statistics.html', context)
