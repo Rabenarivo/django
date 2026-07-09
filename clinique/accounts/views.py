@@ -108,9 +108,22 @@ def home_view(request):
                     'form': form,
                 })
             elif role == 'PHARMARMACIST':
+                from medicines.models import Medicine, Sale, StockMovement
+                from django.utils import timezone
+                
+                today = timezone.now().date()
+                sales_today_count = Sale.objects.filter(created_at__date=today).count()
+                medicines_count = Medicine.objects.count()
+                movements_in_count = StockMovement.objects.filter(movement_type='IN').count()
+                movements_out_count = StockMovement.objects.filter(movement_type='OUT').count()
+
                 return render(request, 'accounts/home_pharmacist.html', {
                     'user': request.user,
                     'profile': profile,
+                    'sales_today_count': sales_today_count,
+                    'medicines_count': medicines_count,
+                    'movements_in_count': movements_in_count,
+                    'movements_out_count': movements_out_count,
                 })
         
         # Fallback to default home.html

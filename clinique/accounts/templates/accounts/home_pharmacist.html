@@ -45,36 +45,47 @@
             </h1>
 
             <div class="row g-4 mb-5">
-                <div class="col-md-4">
-                    <div class="card stats-card">
+                <div class="col-md-3">
+                    <div class="card stats-card h-100">
                         <div class="card-body text-center p-4">
                             <div class="stats-icon text-primary-clinique mb-3">
                                 <i class="bi bi-bag"></i>
                             </div>
-                            <h3 class="fw-bold text-primary-clinique">0</h3>
+                            <h3 class="fw-bold text-primary-clinique">{{ sales_today_count }}</h3>
                             <p class="text-muted mb-0">Ventes aujourd'hui</p>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card stats-card">
+                <div class="col-md-3">
+                    <div class="card stats-card h-100">
                         <div class="card-body text-center p-4">
                             <div class="stats-icon text-primary mb-3">
                                 <i class="bi bi-capsule"></i>
                             </div>
-                            <h3 class="fw-bold text-primary">0</h3>
+                            <h3 class="fw-bold text-primary">{{ medicines_count }}</h3>
                             <p class="text-muted mb-0">Médicaments</p>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card stats-card">
+                <div class="col-md-3">
+                    <div class="card stats-card h-100">
                         <div class="card-body text-center p-4">
-                            <div class="stats-icon text-secondary-clinique mb-3">
-                                <i class="bi bi-activity"></i>
+                            <div class="stats-icon text-success mb-3">
+                                <i class="bi bi-box-arrow-in-down"></i>
                             </div>
-                            <h3 class="fw-bold text-secondary-clinique">0</h3>
-                            <p class="text-muted mb-0">Mouvements stock</p>
+                            <h3 class="fw-bold text-success">{{ movements_in_count }}</h3>
+                            <p class="text-muted mb-0">Mvt. Entrées (IN)</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stats-card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="stats-icon text-warning mb-3">
+                                <i class="bi bi-box-arrow-up"></i>
+                            </div>
+                            <h3 class="fw-bold text-warning">{{ movements_out_count }}</h3>
+                            <p class="text-muted mb-0">Mvt. Sorties (OUT)</p>
                         </div>
                     </div>
                 </div>
@@ -89,6 +100,14 @@
                         <a href="{% url 'list_sales' %}" class="btn btn-primary">
                             <i class="bi bi-bag-check me-2"></i>
                             Voir la liste des ventes
+                        </a>
+                        <a href="{% url 'create_medicine' %}" class="btn btn-outline-primary">
+                            <i class="bi bi-plus-circle me-2"></i>
+                            Ajouter un nouveau médicament au catalogue
+                        </a>
+                        <a href="{% url 'create_medicine_stock' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-box-arrow-in-down me-2"></i>
+                            Déclarer un nouvel arrivage de stock (Lot)
                         </a>
                     </div>
                 </div>
