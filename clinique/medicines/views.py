@@ -53,7 +53,7 @@ def chabge_statut_sale(request, sale_id):
 
 @login_required
 def list_sales(request):
-    sales = Sale.objects.filter(status="PENDING")
+    sales = Sale.objects.filter(status="COMPLETED")
     return render(request, "medicines/list_sales.html", {"sales": sales})
 
 @login_required

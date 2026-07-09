@@ -180,3 +180,42 @@ def create_user(request):
 
     return render(request, 'accounts/create_user.html', {'form': form})
 
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.db.models import Sum, Count
+from django.db.models.functions import TruncMonth, TruncDay
+from django.http import JsonResponse
+from medicines.models import Sale, SaleItem
+from patients.models import Patient
+
+def is_admin(user):
+    return hasattr(user, 'profile') and user.profile.role.upper() == 'ADMIN'
+
+@login_required
+@user_passes_test(is_admin)
+def admin_statistics_view(request):
+    # 1. Top 5 Médicaments Vendus
+    top_medicines = SaleItem.objects.values('medicine__name').annotate(
+        total_quantity=Sum('quantity')
+    ).order_by('-total_quantity')[:5]
+    
+    # 2. Chiffre d'Affaires par Mois
+    ca_by_month = Sale.objects.filter(status='COMPLETED').annotate(
+        month=TruncMonth('created_at')
+    ).values('month').annotate(
+        total_ca=Sum('total_amount')
+    ).order_by('month')
+
+    # 3. Nouveaux Clients par Mois
+    patients_by_month = Patient.objects.annotate(
+        month=TruncMonth('created_at')
+    ).values('month').annotate(
+        total_patients=Count('id')
+    ).order_by('month')
+
+    context = {
+        'top_medicines': json.dumps([{'name': m['medicine__name'], 'qty': m['total_quantity']} for m in top_medicines]),
+        'ca_by_month': json.dumps([{'month': str(c['month'].date()), 'total': float(c['total_ca'])} for c in ca_by_month if c['month']]),
+        'patients_by_month': json.dumps([{'month': str(p['month'].date()), 'total': p['total_patients']} for p in patients_by_month if p['month']]),
+    }
+
+    return render(request, 'accounts/admin_statistics.html', context)
