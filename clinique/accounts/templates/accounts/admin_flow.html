@@ -1,0 +1,113 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Flux et Hiérarchie - Admin</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <script src="https://unpkg.com/gojs/release/go.js"></script>
+    <style>
+        .diagram-container {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" style="background-color: #2c3e50;">
+        <div class="container">
+            <a class="navbar-brand text-white" href="{% url 'accounts_home' %}">
+                <i class="bi bi-arrow-left me-2"></i>Retour Dashboard
+            </a>
+            <span class="navbar-text text-white">
+                <i class="bi bi-shield-lock me-1"></i> Zone Administrateur
+            </span>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <h2 class="mb-4 text-primary-clinique"><i class="bi bi-diagram-3 me-2"></i>Flux de l'Application</h2>
+        <div id="flowDiagram" class="diagram-container mb-5"></div>
+
+        <h2 class="mb-4 text-primary-clinique"><i class="bi bi-people me-2"></i>Hiérarchie et Fonctions des Employés</h2>
+        <div id="orgDiagram" class="diagram-container mb-5"></div>
+    </div>
+
+    <script>
+        function init() {
+            const $ = go.GraphObject.make;
+
+            // Flow Diagram
+            const flowDiagram = $(go.Diagram, "flowDiagram", {
+                "undoManager.isEnabled": true,
+                layout: $(go.TreeLayout, { angle: 0, layerSpacing: 60 })
+            });
+
+            flowDiagram.nodeTemplate =
+                $(go.Node, "Auto",
+                    $(go.Shape, "RoundedRectangle", { strokeWidth: 0, fill: "white" },
+                        new go.Binding("fill", "color")),
+                    $(go.TextBlock, { margin: 15, font: "bold 14px sans-serif", stroke: '#333' },
+                        new go.Binding("text", "key"))
+                );
+
+            flowDiagram.linkTemplate =
+                $(go.Link, { routing: go.Link.Orthogonal, corner: 10 },
+                    $(go.Shape, { strokeWidth: 3, stroke: "#34495e" }),
+                    $(go.Shape, { toArrow: "Standard", stroke: null, fill: "#34495e" })
+                );
+
+            const flowData = [
+                { key: "Patient (Inscription)", color: "#b3e5fc" },
+                { key: "Rendez-vous (Demande)", parent: "Patient (Inscription)", color: "#c8e6c9" },
+                { key: "Réceptionniste (Validation)", parent: "Rendez-vous (Demande)", color: "#fff9c4" },
+                { key: "Médecin (Consultation)", parent: "Réceptionniste (Validation)", color: "#f8bbd0" },
+                { key: "Prescription (Médicaments)", parent: "Médecin (Consultation)", color: "#e1bee7" },
+                { key: "Facturation (Consultation)", parent: "Médecin (Consultation)", color: "#ffe0b2" },
+                { key: "Pharmacie (Vente Stock)", parent: "Prescription (Médicaments)", color: "#dcedc8" },
+                { key: "Paiement (Caisse)", parent: "Facturation (Consultation)", color: "#cfd8dc" }
+            ];
+            flowDiagram.model = new go.TreeModel(flowData);
+
+            // Org Diagram
+            const orgDiagram = $(go.Diagram, "orgDiagram", {
+                "undoManager.isEnabled": true,
+                layout: $(go.TreeLayout, { angle: 90, layerSpacing: 50 })
+            });
+
+            orgDiagram.nodeTemplate =
+                $(go.Node, "Auto",
+                    $(go.Shape, "Rectangle", { strokeWidth: 0, fill: "white" },
+                        new go.Binding("fill", "color")),
+                    $(go.Panel, "Vertical", { margin: 15 },
+                        $(go.TextBlock, { font: "bold 16px sans-serif", margin: new go.Margin(0, 0, 5, 0) },
+                            new go.Binding("text", "role")),
+                        $(go.TextBlock, { font: "13px sans-serif", stroke: "#555" },
+                            new go.Binding("text", "desc"))
+                    )
+                );
+
+            orgDiagram.linkTemplate =
+                $(go.Link, { routing: go.Link.Orthogonal, corner: 10 },
+                    $(go.Shape, { strokeWidth: 2, stroke: "#2c3e50" }),
+                    $(go.Shape, { toArrow: "Standard", stroke: null, fill: "#2c3e50" })
+                );
+
+            const orgData = [
+                { key: 1, role: "Administrateur", desc: "Gestion globale, Accès aux statistiques", color: "#bbdefb" },
+                { key: 2, parent: 1, role: "Médecin", desc: "Gère: Consultations, Diagnostics, Ordonnances", color: "#f8bbd0" },
+                { key: 3, parent: 1, role: "Réceptionniste", desc: "Gère: RDV, Nouveaux Patients, Factures, Paiements", color: "#fff9c4" },
+                { key: 4, parent: 1, role: "Pharmacien", desc: "Gère: Vente de Médicaments, Entrées/Sorties de Stock", color: "#c8e6c9" }
+            ];
+            orgDiagram.model = new go.TreeModel(orgData);
+        }
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

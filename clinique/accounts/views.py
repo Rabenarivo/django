@@ -219,3 +219,8 @@ def admin_statistics_view(request):
     }
 
     return render(request, 'accounts/admin_statistics.html', context)
+
+@login_required
+@user_passes_test(is_admin)
+def admin_flow_view(request):
+    return render(request, 'accounts/admin_flow.html')
